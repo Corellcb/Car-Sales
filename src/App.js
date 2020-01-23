@@ -1,46 +1,47 @@
 import React from 'react';
-import { connect } from 'react-redux';
-
 import Header from './components/Header';
 import AddedFeatures from './components/AddedFeatures';
 import AdditionalFeatures from './components/AdditionalFeatures';
 import Total from './components/Total';
 
+import { connect } from 'react-redux';
+import { addFeature, removeFeature, updateTotal } from './actions/actions';
+
 const App = props => {
 
   const removeFeature = item => {
-    // dispatch an action here to remove an item
+    props.removeFeature(item);
+    props.updateTotal(-item.price)
   };
 
-  const buyItem = item => {
-    // dipsatch an action here to add an item
+  const addItem = item => {
+    props.addFeature(item);
+    props.updateTotal(item.price);
   };
 
   return (
     <div className="boxes">
       <div className="box">
-        <Header />
-        <AddedFeatures />
+        <Header car={props.car} additionalPrice={props.additionalPrice} />
+        <AddedFeatures car={props.car} removeFeature={removeFeature} />
       </div>
       <div className="box">
-        <AdditionalFeatures />
-        <Total />
+        <AdditionalFeatures additionalFeatures={props.additionalFeatures} addItem={addItem} />
+        <Total car={props.car} additionalPrice={props.additionalPrice} />
       </div>
     </div>
   );
 };
 
-
-// wrap the component in the second connect function call
-// first function call takes in a function and an object
-// the function we pass in is usually named mapStateToProps
-
 const mapStateToProps = state => {
   return {
-    car: state.car,
-    additionalFeatures: state.additionalFeatures,
-    additionalPrice: state.additionalPrice
+    car: state.CarReducer.car,
+    additionalFeatures: state.FeatureReducer.additionalFeatures,
+    additionalPrice: state.PriceReducer.additionalPrice
   }
 }
 
-export default connect(mapStateToProps, {})(App); //function currying
+export default connect(
+  mapStateToProps,
+  { addFeature, removeFeature, updateTotal }
+)(App);
